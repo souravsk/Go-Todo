@@ -74,7 +74,7 @@ func fetchTodos(w http.ResponseWriter, r *http.Request){
 	todoList := []todo{}
 
 	for _,t := range todos{
-		todoList = append(todoList, todos{
+		todoList = append(todoList, todo{
 			ID: t.ID.Hex(),
 			Title: t.Title,
 			Completed: t.Completed,
@@ -111,13 +111,13 @@ func createTodo(w http.ResponseWriter, r *http.Request){
 	}
 	/*  here we are send to mongodb to store */
 	if err:= db.C(collectionName).Insert(tm); err != nil{
-		render.JSON(http.StatusProcessing, renderer.M{
+		render.JSON(w, http.StatusProcessing, renderer.M{
 			"message":"Fail to save the data",
-		} )
+		})
 		return
 	}
 	/* here print success messaage */
-	render.JSON(http.StatusCreated, renderer.M{
+	render.JSON(w, http.StatusCreated, renderer.M{
 		"message":"todo created successfully",
 		"todo_id":tm.ID.Hex(),
 	})
@@ -196,7 +196,7 @@ func main(){
 
 	r := chi.NewRouter() /* Creating route with chi */
 	r.Use(middleware.Logger)
-	r.Get("/", homeHandler()) /* This fuction will be called when we hit localhost */
+	r.Get("/", homeHandler) /* This fuction will be called when we hit localhost */
 	r.Mount("/todo", todoHandler()) /* This fuction will be called when we hit localhost/todo */
 
 	/* Now we will create the server */
