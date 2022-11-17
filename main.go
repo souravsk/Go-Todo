@@ -156,7 +156,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request){
 
 	if !bson.IsObjectIdHex(id){
 		render.JSON(w, http.StatusBadRequest, renderer.M{
-			"message":"The ID is invalid"
+			"message":"The ID is invalid",
 		})
 		return
 	}
@@ -177,11 +177,11 @@ func updateTodo(w http.ResponseWriter, r *http.Request){
 
 	if err:= db.C(collectionName).
 	Update(
-		bson.M{"_id":bson.ObjectIdHex(id),}
+		bson.M{"_id":bson.ObjectIdHex(id)},
 		bson.M{"title":t.Title,"completed":t.Completed},
 	); err != nil{
 		render.JSON(w, http.StatusProcessing, renderer.M{
-			"message":"Faile to update todo"
+			"message":"Faile to update todo",
 			"error":err,
 		})
 		return
@@ -219,9 +219,8 @@ func main(){
 	log.Println("Shutting Down The Server......")
 	cxt, cancle:= context.WithTimeout(context.Background(),5*time.Second)
 	srv.Shutdown(cxt)
-	defer cancle(
+	defer cancle()
 		log.Println("Server Stopped")
-	)
 }
 
 
