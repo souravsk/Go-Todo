@@ -56,6 +56,36 @@ func init(){
 	db = sess.DB(dbName)
 }
 
+func homeHandler(w http.ResponseWriter, r *http.Request){
+	err := render.Template(w, http.StatusOK, []string{"static/home.tpl"},nil)
+	checkErr(err)
+}
+
+func fetchTodos(w http.ResponseWriter, r *http.Request){
+	todos := []todoModel{}
+
+	if err := db.C(collectionName).Find(bson.M{}).All(&todos); err != nil{
+		render.JSON(w, http.StatusProcessing, renderer.M{
+			"message":"Failed to fetch todos",
+			"err":err,
+		})
+		return
+	}
+	todoList := []todo{}
+
+	for _,t := range todos{
+		todoList = append(todoList, todos{
+			ID: t.ID.Hex(),
+			Title: t.Title,
+			Completed: t.Completed,
+			CreatedAt: t.CreatedAt,
+		})
+	}
+	render.JSON(w, http.StatusOK, renderer.M{
+		"data":todoList,
+	})
+}
+
 /* As the name say it is main function */
 func main(){
 	/* this is to stop the go channal or go server */
@@ -91,6 +121,7 @@ func main(){
 		log.Println("Server Stopped")
 	)
 }
+
 
 func todoHandler() http.Handler{
 	rg := chi.NewRouter()
