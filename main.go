@@ -1,18 +1,19 @@
 package main
 
 import (
-	"encodeing/json" /* it is to encode the data that we get from mongodb */
-	"log" /* we need to this to see log if there is any error */
-	"net/http" /* This is the main package that allow as to create a server in golang */
-	"strings" /* to perform string opreation with get post */
-	"time"
 	"context"
+	"encodeing/json" /* it is to encode the data that we get from mongodb */
+	"encoding/json"
+	"log"      /* we need to this to see log if there is any error */
+	"net/http" /* This is the main package that allow as to create a server in golang */
 	"os"
 	"os/signal"
+	"strings" /* to perform string opreation with get post */
+	"time"
 
 	"github.com/go-chi/chi" /* this package help me to create route  */
 	"github.com/go-chi/chi/middleware"
-	"github.com/thedevsaddam/renderer"  /* this is renderer that renders the web page for the todo list */
+	"github.com/thedevsaddam/renderer" /* this is renderer that renders the web page for the todo list */
 
 	/* library  that help to talk to the mongodb database */
 	mgo "gopkg.in/mgo.v2"
@@ -84,6 +85,101 @@ func fetchTodos(w http.ResponseWriter, r *http.Request){
 	render.JSON(w, http.StatusOK, renderer.M{
 		"data":todoList,
 	})
+}
+
+/* Here we are creating the data and storeing into mongodb */
+func createTodo(w http.ResponseWriter, r *http.Request){
+	var t todo
+
+	if err:= json.NewDecoder(r.Body).Decode(&t); err != nil{
+		render.JSON(w, http.StatusProcessing,err)
+		return
+	}
+	/* checking if the var is not empty */
+	if t.Title == ""{
+		render.JSON(http.StatusBadRequest, renderer.M{
+			"message":"The title is required",
+		})
+		return
+	}
+
+	/*here we are getting all the data  */
+	tm := todoModel{
+		ID: bson.NewObjectId(),
+		Title: t.Title,
+		Completed: false,
+		CreatedAt: time.Now(),
+	}
+	/*  here we are send to mongodb to store */
+	if err:= db.C(collectionName).Insert(tm); err != nil{
+		render.JSON(http.StatusProcessing, renderer.M{
+			"message":"Fail to save the data",
+		} )
+		return
+	}
+	/* here print success messaage */
+	render.JSON(http.StatusCreated, renderer.M{
+		"message":"todo created successfully",
+		"todo_id":tm.ID.Hex(),
+	})
+}
+
+/* This function is for deleting the list iteam */
+func deleteTodo(w http.ResponseWriter, r *http.Request){
+	id := strings.TrimSpace(chi.URLParam(r,"id")) /* we created a variable to get the id. string is to remove space and chi will get the url and id  */
+
+	/* here we check weather ID is valid or not */
+	if !bson.IsObjectIdHex(id){
+		render.JSON(w, http.StatusProcessing, renderer.M{
+			"message":"This id is invalid";
+		})
+		return
+	}
+
+	/* here we will work with database or mongodb */
+	if err:= db.C(collectionName).RemoveId(bson.IsObjectIdHex(id));err != nil{
+		render.JSON(w, http.StatusProcessing, renderer.M{
+			"message":"Failed to delete todo",
+			"error":err,
+		})
+		return
+	}
+
+	/* Here we will send success full message for deleteting */
+	render.JSON(w, http.StatusOK, renderer.M{
+		"message":"todo Deleted Succesfully",
+	})
+}
+
+/* This function is for updateing the todo list */
+func updateTodo(w http.ResponseWriter, r *http.Request){
+	id := strings.TrimSpace(chi.URLParam(r,"id"))
+
+	if !bson.IsObjectIdHex(id){
+		render.JSON(w, http.StatusBadRequest, renderer.M{
+			"message":"The ID is invalid"
+		})
+		return
+	}
+
+	var t todo
+
+	if err:= json.NewDecoder(r.Body).Decode(&t); err != nil{
+		render.JSON(w, http.StatusProcessing, err)
+		return
+	}
+
+	if t.Title == ""{
+		render.JSON(w, http.StatusBadRequest, renderer.M{
+			"message":"The title is field id required",
+		})
+		return
+	}
+
+	if err:= db.C(collectionName).
+	Update(
+		bson. 
+	)
 }
 
 /* As the name say it is main function */
