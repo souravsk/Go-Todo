@@ -96,7 +96,7 @@ func createTodo(w http.ResponseWriter, r *http.Request){
 	}
 	/* checking if the var is not empty */
 	if t.Title == ""{
-		render.JSON(http.StatusBadRequest, renderer.M{
+		render.JSON(w, http.StatusBadRequest, renderer.M{
 			"message":"The title is required",
 		})
 		return
