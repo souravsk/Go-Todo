@@ -25,7 +25,7 @@ var db *mgo.Database
 
 /* THis are the constent varible we don't want to make any change that why we created const */
 const(
-	hostName		string = "localhost:27017"
+	hostName		string = "localhost:27001"
 	dbName			string = "demo_todo"
 	collectionName  string = "todo"
 	port			string = ":9000"
