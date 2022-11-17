@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"encodeing/json" /* it is to encode the data that we get from mongodb */
-	"encoding/json"
+	"encoding/json" /* it is to encode the data that we get from mongodb */
 	"log"      /* we need to this to see log if there is any error */
 	"net/http" /* This is the main package that allow as to create a server in golang */
 	"os"
@@ -131,7 +130,7 @@ func deleteTodo(w http.ResponseWriter, r *http.Request){
 	/* here we check weather ID is valid or not */
 	if !bson.IsObjectIdHex(id){
 		render.JSON(w, http.StatusProcessing, renderer.M{
-			"message":"This id is invalid";
+			"message":"This id is invalid",
 		})
 		return
 	}
@@ -178,8 +177,15 @@ func updateTodo(w http.ResponseWriter, r *http.Request){
 
 	if err:= db.C(collectionName).
 	Update(
-		bson. 
-	)
+		bson.M{"_id":bson.ObjectIdHex(id),}
+		bson.M{"title":t.Title,"completed":t.Completed},
+	); err != nil{
+		render.JSON(w, http.StatusProcessing, renderer.M{
+			"message":"Faile to update todo"
+			"error":err,
+		})
+		return
+	}
 }
 
 /* As the name say it is main function */
