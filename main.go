@@ -25,7 +25,7 @@ var db *mgo.Database
 
 /* THis are the constent varible we don't want to make any change that why we created const */
 const(
-	hostName		string = "localhost:27001"
+	hostName		string = "localhost:27017"
 	dbName			string = "demo_todo"
 	collectionName  string = "todo"
 	port			string = ":9000"
@@ -43,7 +43,7 @@ type(
 		ID		string `josn:"id"`
 		Title 	string `josn:"title"`
 		Completed bool `josn:"completed"`
-		CreatedAt time.Time `bson:"createAt"`
+		CreatedAt time.Time `json:"createAt"`
 	}
 )
 
